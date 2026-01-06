@@ -6,21 +6,38 @@
 #include <cstdlib>    
 #include <fstream>
 
+// Получение строки из сетки судоку
 auto Sudoku::GetRow(SudokuGrid& Sgrid, int row) {
+	// Проверка границ индекса строки
+	if (row < 0 || row > 8) {
+		throw std::out_of_range("Индекс строки должен быть в диапазоне 0-8");
+	}
 	std::vector <int> result;
 	for (int col = 0; col < 9; ++col) {
 		result.push_back(Sgrid.grid[row][col]);
 	}
 	return result;
 }
+
+// Получение столбца из сетки судоку
 auto Sudoku::GetCol(SudokuGrid& Sgrid, int col) {
+	// Проверка границ индекса столбца
+	if (col < 0 || col > 8) {
+		throw std::out_of_range("Индекс столбца должен быть в диапазоне 0-8");
+	}
 	std::vector <int> result;
 	for (int row = 0; row < 9; ++row) {
 		result.push_back(Sgrid.grid[row][col]);
 	}
 	return result;
 }
+
+// Получение значений блока 3x3
 auto Sudoku::getBlock(SudokuGrid& Sgrid, int block) {
+	// Проверка границ индекса блока
+	if (block < 0 || block > 8) {
+		throw std::out_of_range("Индекс блока должен быть в диапазоне 0-8");
+	}
 	std::vector <int> result;
 	int StartRow = block / 3 * 3;
 	int StartCol = block % 3 * 3;
@@ -30,8 +47,19 @@ auto Sudoku::getBlock(SudokuGrid& Sgrid, int block) {
 		}
 	return result;
 }
+
+// Проверка возможности размещения числа в ячейке
 bool Sudoku::CanPlace(SudokuGrid& Sgrid, int row, int col, int num) {
-	// Проверяем строку
+	// Проверка границ индексов
+	if (row < 0 || row > 8 || col < 0 || col > 8) {
+		throw std::out_of_range("Индексы строки и столбца должны быть в диапазоне 0-8");
+	}
+
+	// Проверка допустимого значения числа
+	if (num < 1 || num > 9) {
+		throw std::invalid_argument("Число должно быть в диапазоне 1-9");
+	}
+
 	for (int x = 0; x < 9; x++) {
 		if (Sgrid.grid[row][x] == num) return false;
 	}
@@ -51,39 +79,87 @@ bool Sudoku::CanPlace(SudokuGrid& Sgrid, int row, int col, int num) {
 	}
 	return true;
 }
+
+// Основной решатель судоку
 bool Sudoku::SolveSudoku(SudokuGrid& Sgrid) {
-	for (int row = 0; row < 9; ++row)
-		for (int col = 0; col < 9; ++col) {
+	std::vector<SudokuState> states;
+	auto [startRow, startCol] = getNextEmptyCell(Sgrid);
+	if (startRow == -1) return true; // сетка уже заполнена
+	states.push_back({ startRow, startCol, Sgrid, 1 });
+	while (!states.empty()) {
+		auto& curr = states.back();
+
+		// Если число не подходит или исчерпали варианты
+		if (curr.num > 9) {
+			states.pop_back();
+			if (states.empty()) return false; // нет решений
+
+			// Откатываемся: очищаем ячейку и пробуем следующее число
+			Sgrid.grid[curr.row][curr.col] = 0;
+			++states.back().num;
+			continue;
+		}
+
+		// Проверяем, можно ли поставить число
+		if (CanPlace(Sgrid, curr.row, curr.col, curr.num)) {
+			Sgrid.grid[curr.row][curr.col] = curr.num;
+
+			auto [nextRow, nextCol] = getNextEmptyCell(Sgrid, curr.row, curr.col);
+			if (nextRow == -1) {
+				return true; // сетка заполнена — решение найдено
+			}
+
+			// Добавляем следующее состояние
+			states.push_back({ nextRow, nextCol, Sgrid, 1 });
+		}
+		else {
+			// Число не подходит — пробуем следующее
+			++curr.num;
+		}
+	}
+	return false;
+}
+
+std::pair<int, int> Sudoku::getNextEmptyCell(const SudokuGrid& Sgrid, int startRow, int startCol) {
+	// Проверка начальных индексов
+	if (startRow < 0 || startRow > 8 || startCol < 0 || startCol > 8) {
+		throw std::out_of_range("Начальные индексы должны быть в диапазоне 0-8");
+	}
+
+	// Поиск пустой ячейки
+	for (int row = startRow; row < 9; ++row) {
+		for (int col = (row == startRow ? startCol : 0); col < 9; ++col) {
+			// Проверка корректности данных
+			if (Sgrid.grid[row][col] < 0 || Sgrid.grid[row][col] > 9) {
+				throw std::invalid_argument("Некорректное значение в ячейке");
+			}
 			if (Sgrid.grid[row][col] == 0) {
-				for (int num = 1; num <= 9; ++num) {
-					if (CanPlace(Sgrid, row, col, num)) {
-						Sgrid.grid[row][col] = num;
-						if (SolveSudoku(Sgrid)) {
-							return true;
-						}
-						Sgrid.grid[row][col] = 0;
-					}
-				}
-				return false;
+				return { row, col };
 			}
 		}
-	return true;
+	}
+	return { -1, -1 };
 }
+
+// Вывод сетки судоку в консоль
 void Sudoku::PrintGrid(SudokuGrid& Sgrid) {
 	for (int row = 0; row < 9; ++row) {
 		std::cout << "|";
 		for (int col = 0; col < 9; ++col) {
 			if (Sgrid.grid[row][col] == 0) {
-				std::cout << " . "; // Светло-серый на чёрном фоне
+				std::cout << " . ";
 			}
 			else {
 				std::cout << " " << Sgrid.grid[row][col] << " ";
 			}
+			
+
 		}
 		std::cout << std::endl;
-		if (row % 3 == 2 && row < 8) { // Разделители между блоками 3x3
-			std::cout << "------+-------+------" << std::endl;
+		if (row % 3 == 2 ) { // Разделители между блоками 3x3
+			std::cout << "---------+--------+--------" << std::endl;
 		}
+		
 	}
 	
 }
@@ -91,6 +167,8 @@ void Sudoku::PrintGrid(SudokuGrid& Sgrid) {
 int Sudoku::RandomNumber() {
 	return rand() % 9;
 }
+
+// Создание пустых ячеек для получения решаемой головоломки
 void Sudoku::RemoveRandomNumber(SudokuGrid& Sgrid) {
 	const int count = 30;
 	int cnt = 0;
@@ -103,6 +181,8 @@ void Sudoku::RemoveRandomNumber(SudokuGrid& Sgrid) {
 		++cnt;
 	}
 }
+
+// Проверка корректности заполненной сетки
 bool Sudoku::CheckGrid(SudokuGrid& Sgrid) {
 	for (int row = 0; row < 9; ++row) {
 		for (int col = 0; col < 9; ++col) {
@@ -119,9 +199,15 @@ bool Sudoku::CheckGrid(SudokuGrid& Sgrid) {
 	}
 	return true; // поле корректно
 }
+
+// Сохранение сетки в файл
 void Sudoku::SaveGrid(SudokuGrid& Sgrid) {
 	std::string filename = "Savefile.txt";
 	std::ofstream file(filename);
+	if (!file.is_open()) {
+		std::cerr << "Ошибка открытия файла " << filename << std::endl;
+		exit(1);
+	}
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			file << Sgrid.grid[i][j] << " ";
@@ -129,37 +215,54 @@ void Sudoku::SaveGrid(SudokuGrid& Sgrid) {
 		file << std::endl;
 	}
 	std::cout << "Судоку сохранён в файл " << filename << std::endl;
+	file.close();
 }
 
+
+// Загрузка сетки из файла	
 void Sudoku::LoadGrid(SudokuGrid& Sgrid) {
 	std::string filename = "Loadfile.txt";
 	std::ifstream file(filename);
+	if (!file.is_open()) {
+		std::cerr << "Ошибка получения " << filename << std::endl;
+		exit(1);
+	}
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			file >> Sgrid.grid[i][j];
 		}
 	}
+	file.close();
 }
+
+// Генерация полной сетки судоку
 bool Sudoku::GenerateSudoku(SudokuGrid& Sgrid) {
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
-			Sgrid.grid[i][j] = 0;
-		}
+	// Инициализируем сетку нулями
+	for (auto& row : Sgrid.grid) {
+		std::fill(row.begin(), row.end(), 0);
 	}
-	srand(time(NULL)); // инициализация генератора случайных чисел
+	// Инициализация генератора случайных чисел только один раз
+	static bool initialized = false;
+	if (!initialized) {
+		srand(time(NULL));
+		initialized = true;
+	}
+
+	// Создаем массив возможных чисел один раз
+	std::vector<int> nums = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	std::vector<bool> used(9, false); // Для отслеживания использованных чисел
+
 	for (int row = 0; row < 9; row++) {
 		for (int col = 0; col < 9; col++) {
-			std::vector<int> nums = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+			// Перемешиваем числа вручную
+			std::vector<int> shuffledNums = nums;
+			for (int i = 0; i < 9; i++) {
+				int randomIndex = rand() % (9 - i);
+				std::swap(shuffledNums[i], shuffledNums[i + randomIndex]);
+			}
 
-			// Перемешиваем вектор «вручную» с помощью rand()
-				for (int i = 0; i < nums.size(); ++i) {
-					// Выбираем случайный индекс для обмена
-					int randomIndex = rand() % nums.size();
-					// Меняем местами элементы
-					std::swap(nums[i], nums[randomIndex]);
-				}
 			bool placed = false;
-			for (int num : nums) {
+			for (int num : shuffledNums) {
 				if (CanPlace(Sgrid, row, col, num)) {
 					Sgrid.grid[row][col] = num;
 					placed = true;
@@ -175,43 +278,4 @@ bool Sudoku::GenerateSudoku(SudokuGrid& Sgrid) {
 	}
 	return true;
 }
-void Sudoku::print(SudokuGrid& grid) {
-	Sudoku solver;
-	std::string input2;
-	bool flag2 = true;
-	int choice = 0;
-	std::cout << "Куда вывести решённое судоку?" << std::endl;
-	std::cout << "1 - в консоль" << std::endl;
-	std::cout << "2 - в файл" << std::endl;
-	std::cout << "3 - в консоль и файл" << std::endl;
-	while (flag2) {
-		try {
-			getline(std::cin, input2);
-			choice = stoi(input2);
-			flag2 = false;
-		}
-		catch (std::invalid_argument) {
-			std::cerr << "Ошибка ввода. Попробуйте снова!" << std::endl;
-		}
-		if (choice > 0 && choice < 4) {
-			flag2 = false;
-		}
-		else {
-			std::cerr << "Ошибка ввода. Попробуйте снова!" << std::endl;
-			continue;
-		}
-	}
-	if (choice == 1) {
-		std::cout << "Решённое судоку:" << std::endl;
-		solver.PrintGrid(grid);
-	}
-	else if (choice == 2) {
-		solver.SaveGrid(grid);
-	}
-	else if (choice == 3) {
-		solver.SaveGrid(grid);
-		std::cout << "Решённое судоку:" << std::endl;
-		solver.PrintGrid(grid);
-	}
-	
-}
+

@@ -1,11 +1,20 @@
 #include <vector>
 #include <iostream>
 #include <string>
+
 struct SudokuGrid {
 	std::vector<std::vector<int>> grid;
 	SudokuGrid() : grid(9, std::vector<int>(9, 0)) {}//конструктор, который заполняет поле 0
 };
+
+struct SudokuState {//структура состояний 
+	int row, col;           // координаты ячейки
+	SudokuGrid grid;        // копия сетки на этом шаге
+	int num;               // текущее число для проверки (от 1 до 9)
+};
+
 struct Sudoku {
+	std::pair<int, int> getNextEmptyCell(const SudokuGrid& Sgrid, int startRow = 0, int startCol = 0);
 	auto GetRow(SudokuGrid &Sgrid, int row);
 	auto GetCol(SudokuGrid& Sgrid, int col);
 	auto getBlock(SudokuGrid& Sgrid, int block);
@@ -18,5 +27,6 @@ struct Sudoku {
 	void SaveGrid(SudokuGrid& Sgrid);
 	void LoadGrid(SudokuGrid& Sgrid);
 	bool GenerateSudoku(SudokuGrid& Sgrid);
-	void print(SudokuGrid& Sgrid);
 };
+void PrintSolvedSudoku(SudokuGrid& grid);
+void menu(SudokuGrid& grid);
