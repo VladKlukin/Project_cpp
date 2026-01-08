@@ -31,7 +31,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Loadfile.txt" />
-    <Text Include="Savefile.txt" />
+    <Text Include="Load.txt" />
+    <Text Include="Save.txt" />
   </ItemGroup>
 </Project>

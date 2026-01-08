@@ -7,46 +7,46 @@
 #include <fstream>
 
 // Получение строки из сетки судоку
-auto Sudoku::GetRow(SudokuGrid& Sgrid, int row) {
-	// Проверка границ индекса строки
-	if (row < 0 || row > 8) {
-		throw std::out_of_range("Индекс строки должен быть в диапазоне 0-8");
-	}
-	std::vector <int> result;
-	for (int col = 0; col < 9; ++col) {
-		result.push_back(Sgrid.grid[row][col]);
-	}
-	return result;
-}
-
-// Получение столбца из сетки судоку
-auto Sudoku::GetCol(SudokuGrid& Sgrid, int col) {
-	// Проверка границ индекса столбца
-	if (col < 0 || col > 8) {
-		throw std::out_of_range("Индекс столбца должен быть в диапазоне 0-8");
-	}
-	std::vector <int> result;
-	for (int row = 0; row < 9; ++row) {
-		result.push_back(Sgrid.grid[row][col]);
-	}
-	return result;
-}
-
-// Получение значений блока 3x3
-auto Sudoku::getBlock(SudokuGrid& Sgrid, int block) {
-	// Проверка границ индекса блока
-	if (block < 0 || block > 8) {
-		throw std::out_of_range("Индекс блока должен быть в диапазоне 0-8");
-	}
-	std::vector <int> result;
-	int StartRow = block / 3 * 3;
-	int StartCol = block % 3 * 3;
-	for (int i = 0; i < 3; ++i)
-		for (int j = 0; j < 3; ++j) {
-			result.push_back(Sgrid.grid[i + StartRow][j + StartCol]);
-		}
-	return result;
-}
+//auto Sudoku::GetRow(SudokuGrid& Sgrid, int row) {
+//	// Проверка границ индекса строки
+//	if (row < 0 || row > 8) {
+//		throw std::out_of_range("Индекс строки должен быть в диапазоне 0-8");
+//	}
+//	std::vector <int> result;
+//	for (int col = 0; col < 9; ++col) {
+//		result.push_back(Sgrid.grid[row][col]);
+//	}
+//	return result;
+//}
+//
+//// Получение столбца из сетки судоку
+//auto Sudoku::GetCol(SudokuGrid& Sgrid, int col) {
+//	// Проверка границ индекса столбца
+//	if (col < 0 || col > 8) {
+//		throw std::out_of_range("Индекс столбца должен быть в диапазоне 0-8");
+//	}
+//	std::vector <int> result;
+//	for (int row = 0; row < 9; ++row) {
+//		result.push_back(Sgrid.grid[row][col]);
+//	}
+//	return result;
+//}
+//
+//// Получение значений блока 3x3
+//auto Sudoku::getBlock(SudokuGrid& Sgrid, int block) {
+//	// Проверка границ индекса блока
+//	if (block < 0 || block > 8) {
+//		throw std::out_of_range("Индекс блока должен быть в диапазоне 0-8");
+//	}
+//	std::vector <int> result;
+//	int StartRow = block / 3 * 3;
+//	int StartCol = block % 3 * 3;
+//	for (int i = 0; i < 3; ++i)
+//		for (int j = 0; j < 3; ++j) {
+//			result.push_back(Sgrid.grid[i + StartRow][j + StartCol]);
+//		}
+//	return result;
+//}
 
 // Проверка возможности размещения числа в ячейке
 bool Sudoku::CanPlace(SudokuGrid& Sgrid, int row, int col, int num) {
@@ -202,7 +202,7 @@ bool Sudoku::CheckGrid(SudokuGrid& Sgrid) {
 
 // Сохранение сетки в файл
 void Sudoku::SaveGrid(SudokuGrid& Sgrid) {
-	std::string filename = "Savefile.txt";
+	std::string filename = "Save.txt";
 	std::ofstream file(filename);
 	if (!file.is_open()) {
 		std::cerr << "Ошибка открытия файла " << filename << std::endl;
@@ -221,7 +221,7 @@ void Sudoku::SaveGrid(SudokuGrid& Sgrid) {
 
 // Загрузка сетки из файла	
 void Sudoku::LoadGrid(SudokuGrid& Sgrid) {
-	std::string filename = "Loadfile.txt";
+	std::string filename = "Load.txt";
 	std::ifstream file(filename);
 	if (!file.is_open()) {
 		std::cerr << "Ошибка получения " << filename << std::endl;

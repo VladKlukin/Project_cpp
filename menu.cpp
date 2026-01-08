@@ -54,8 +54,7 @@ void menu(SudokuGrid& grid) {
     std::cout << "<------------Menu----------->" << std::endl;
     std::cout << "1 - загрузить судоку из файла" << std::endl;
     std::cout << "2 - сгенерировать судоку" << std::endl;
-    std::cout << "3 - проверить корректность поля(для загруженного и решённого поля)" << std::endl;
-    std::cout << "4 - выход" << std::endl;
+    std::cout << "3 - выход" << std::endl;
     std::cout << "(пустое значение клетки в судоку отмечено точкой)" << std::endl;
     bool flag = true;
     int choice = 0;
@@ -103,8 +102,8 @@ void menu(SudokuGrid& grid) {
         solver.RemoveRandomNumber(grid);
         solver.PrintGrid(grid);
         if (solver.CheckGrid(grid)) {
-            solver.SolveSudoku(grid);
-            PrintSolvedSudoku(grid);
+            solver.SaveGrid(grid);
+            menu(grid);
             break;
         }
         else {
@@ -113,19 +112,7 @@ void menu(SudokuGrid& grid) {
         }
         break;
     }
-    case 3:
-        if (solver.CheckGrid(grid)) {
-            std::cout << "Поле корректно" << std::endl;
-            menu(grid);
-            break;
-        }
-        else {
-            std::cout << "Поле не корректно" << std::endl;
-            menu(grid);
-            break;
-        }
-        break;
-    case 4: break;
+    case 3: break;
     default:
         std::cout << "Ошибка ввода" << std::endl;
         break;

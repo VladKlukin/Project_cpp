@@ -135,8 +135,8 @@
     <ClInclude Include="Header.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Loadfile.txt" />
-    <Text Include="Savefile.txt" />
+    <Text Include="Load.txt" />
+    <Text Include="Save.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
