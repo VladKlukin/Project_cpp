@@ -13,11 +13,13 @@ struct SudokuState {//структура состояний
 	int num;               // текущее число для проверки (от 1 до 9)
 };
 
+struct CellPosition {//координаты пустой клетки
+	int row;
+	int col;
+};
+
 struct Sudoku {
-	std::pair<int, int> getNextEmptyCell(const SudokuGrid& Sgrid, int startRow = 0, int startCol = 0);
-	auto GetRow(SudokuGrid &Sgrid, int row);
-	auto GetCol(SudokuGrid& Sgrid, int col);
-	auto getBlock(SudokuGrid& Sgrid, int block);
+	CellPosition getNextEmptyCell(const SudokuGrid& Sgrid, int startRow = 0, int startCol = 0);
 	bool CanPlace(SudokuGrid& Sgrid, int row, int col, int num);
 	bool SolveSudoku(SudokuGrid& Sgrid);
 	void PrintGrid(SudokuGrid& Sgrid);

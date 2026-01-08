@@ -5,49 +5,6 @@
 #include <ctime>      
 #include <cstdlib>    
 #include <fstream>
-
-// Получение строки из сетки судоку
-//auto Sudoku::GetRow(SudokuGrid& Sgrid, int row) {
-//	// Проверка границ индекса строки
-//	if (row < 0 || row > 8) {
-//		throw std::out_of_range("Индекс строки должен быть в диапазоне 0-8");
-//	}
-//	std::vector <int> result;
-//	for (int col = 0; col < 9; ++col) {
-//		result.push_back(Sgrid.grid[row][col]);
-//	}
-//	return result;
-//}
-//
-//// Получение столбца из сетки судоку
-//auto Sudoku::GetCol(SudokuGrid& Sgrid, int col) {
-//	// Проверка границ индекса столбца
-//	if (col < 0 || col > 8) {
-//		throw std::out_of_range("Индекс столбца должен быть в диапазоне 0-8");
-//	}
-//	std::vector <int> result;
-//	for (int row = 0; row < 9; ++row) {
-//		result.push_back(Sgrid.grid[row][col]);
-//	}
-//	return result;
-//}
-//
-//// Получение значений блока 3x3
-//auto Sudoku::getBlock(SudokuGrid& Sgrid, int block) {
-//	// Проверка границ индекса блока
-//	if (block < 0 || block > 8) {
-//		throw std::out_of_range("Индекс блока должен быть в диапазоне 0-8");
-//	}
-//	std::vector <int> result;
-//	int StartRow = block / 3 * 3;
-//	int StartCol = block % 3 * 3;
-//	for (int i = 0; i < 3; ++i)
-//		for (int j = 0; j < 3; ++j) {
-//			result.push_back(Sgrid.grid[i + StartRow][j + StartCol]);
-//		}
-//	return result;
-//}
-
 // Проверка возможности размещения числа в ячейке
 bool Sudoku::CanPlace(SudokuGrid& Sgrid, int row, int col, int num) {
 	// Проверка границ индексов
@@ -120,25 +77,18 @@ bool Sudoku::SolveSudoku(SudokuGrid& Sgrid) {
 	return false;
 }
 
-std::pair<int, int> Sudoku::getNextEmptyCell(const SudokuGrid& Sgrid, int startRow, int startCol) {
-	// Проверка начальных индексов
-	if (startRow < 0 || startRow > 8 || startCol < 0 || startCol > 8) {
-		throw std::out_of_range("Начальные индексы должны быть в диапазоне 0-8");
-	}
-
-	// Поиск пустой ячейки
-	for (int row = startRow; row < 9; ++row) {
-		for (int col = (row == startRow ? startCol : 0); col < 9; ++col) {
-			// Проверка корректности данных
-			if (Sgrid.grid[row][col] < 0 || Sgrid.grid[row][col] > 9) {
-				throw std::invalid_argument("Некорректное значение в ячейке");
-			}
-			if (Sgrid.grid[row][col] == 0) {
-				return { row, col };
-			}
-		}
-	}
-	return { -1, -1 };
+CellPosition Sudoku::getNextEmptyCell(const SudokuGrid& Sgrid, int startRow, int startCol) { 
+    for (int row = startRow; row < 9; ++row) {
+        for (int col = (row == startRow ? startCol : 0); col < 9; ++col) {
+            if (Sgrid.grid[row][col] < 0 || Sgrid.grid[row][col] > 9) {
+                throw std::invalid_argument("Некорректное значение в ячейке");
+            }
+            if (Sgrid.grid[row][col] == 0) {
+                return { row, col };
+            }
+        }
+    }
+    return { -1, -1 };
 }
 
 // Вывод сетки судоку в консоль
